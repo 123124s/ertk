@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>색상 맞추기 게임</title>
+    <style>
+        /* CSS 스타일링 */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #color-display {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            border: 2px solid black;
+            border-radius: 10px;
+        }
+        #options {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .option {
+            cursor: pointer;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .option:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1>색상 맞추기 게임</h1>
+    <div id="color-display"></div>
+    <div id="options">
+        <!-- 여기에 옵션 버튼이 동적으로 생성됩니다. -->
+    </div>
+
+    <script>
+        // JavaScript 코드 작성
+        const colorDisplay = document.getElementById('color-display');
+        const optionsContainer = document.getElementById('options');
+
+        // RGB 색상 코드 생성 함수
+        function generateColor() {
+            const red = Math.floor(Math.random() * 256);
+            const green = Math.floor(Math.random() * 256);
+            const blue = Math.floor(Math.random() * 256);
+            return `rgb(${red}, ${green}, ${blue})`;
+        }
+
+        // 비슷한 색상 생성 함수
+        function generateSimilarColor(targetColor) {
+            const tolerance = 30; // 색상의 허용 범위
+            const red = parseInt(targetColor.slice(4, 7));
+            const green = parseInt(targetColor.slice(9, 12));
+            const blue = parseInt(targetColor.slice(14, 17));
+
+            const similarRed = Math.max(0, Math.min(255, red + Math.floor(Math.random() * tolerance * 2) - tolerance));
+            const similarGreen = Math.max(0, Math.min(255, green + Math.floor(Math.random() * tolerance * 2) - tolerance));
+            const similarBlue = Math.max(0, Math.min(255, blue + Math.floor(Math.random() * tolerance * 2) - tolerance));
+
+            return `rgb(${similarRed}, ${similarGreen}, ${similarBlue})`;
+        }
+
+        // 새 게임 시작 함수
+        function newGame() {
+            const targetColor = generateColor();
+            colorDisplay.style.backgroundColor = targetColor;
+            optionsContainer.innerHTML = ''; // 이전의 옵션 버튼들을 초기화
+
+            // 정답과 비슷한 색상 생성
+            const similarColors = [];
+            for (let i = 0; i < 2; i++) {
+                similarColors.push(generateSimilarColor(targetColor));
+            }
+
+            // 옵션 버튼 생성
+            const options = [];
+            for (let i = 0; i < 3; i++) {
+                const optionColor = i === 0 ? targetColor : similarColors.pop();
+                options.push(optionColor);
+            }
+            shuffle(options); // 옵션 순서 섞기
+
+            // 옵션 버튼 추가
+            options.forEach((color, index) => {
+                const optionButton = document.createElement('button');
+                optionButton.classList.add('option');
+                optionButton.textContent = `색상 ${index + 1}`;
+                optionButton.style.backgroundColor = color;
+                optionButton.addEventListener('click', () => {
+                    checkAnswer(color, targetColor);
+                });
+                optionsContainer.appendChild(optionButton);
+            });
+        }
+
+        // 정답 확인 함수
+        function checkAnswer(selectedColor, targetColor) {
+            if (selectedColor === targetColor) {
+                alert('정답입니다!');
+            } else {
+                alert('틀렸습니다. 다시 시도해 보세요.');
+            }
+            newGame(); // 새 게임 시작
+        }
+
+        // 배열 섞기 함수 (Fisher-Yates shuffle 알고리즘)
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 페이지 로드 시 새 게임 시작
+        newGame();
+    </script>
+</body>
+</html>
